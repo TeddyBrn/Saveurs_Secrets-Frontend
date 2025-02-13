@@ -1,3 +1,5 @@
+import { Recipe } from '@/types/recipe';
+
 const API_URL = 'http://localhost:5000/api';
 
 export interface LoginData {
@@ -57,5 +59,38 @@ export const authService = {
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+  }
+};
+
+export const recipeService = {
+  async getAllRecipes(): Promise<Recipe[]> {
+    console.log('Fetching recipes from API...');
+    try {
+      const response = await fetch(`${API_URL}/recipes`);
+      console.log('API Response status:', response.status);
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('API Error:', error);
+        throw new Error(
+          error.message || 'Erreur lors de la récupération des recettes'
+        );
+      }
+
+      const data = await response.json();
+      console.log('Recipes fetched:', data.length);
+      return data;
+    } catch (error) {
+      console.error('Error in getAllRecipes:', error);
+      throw error;
+    }
+  },
+
+  async getRecipeById(id: string): Promise<Recipe> {
+    const response = await fetch(`${API_URL}/recipes/${id}`);
+    if (!response.ok) {
+      throw new Error('Erreur lors de la récupération de la recette');
+    }
+    return response.json();
   }
 };
